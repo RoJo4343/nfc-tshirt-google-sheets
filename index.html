@@ -344,20 +344,15 @@
             console.log('🔑 API Key configured:', AIRTABLE_API_KEY !== 'YOUR_AIRTABLE_API_KEY');
             
             if (AIRTABLE_BASE_ID === 'YOUR_AIRTABLE_BASE_ID' || AIRTABLE_API_KEY === 'YOUR_AIRTABLE_API_KEY') {
-                addLogEntry(`⚠️ Airtable not configured - Simulating: John Smith ${action}`, false);
+                addLogEntry(`⚠️ Airtable not configured - Simulating: ${action} at ${formatTimestamp()}`, false);
                 return true;
             }
 
             const recordData = {
-    fields: {
-        'Timestamp': new Date().toISOString(),
-        'User Name': 'John Smith',
-        'Action': action,
-        'User Agent': navigator.userAgent,
-        'URL': window.location.href,
-        'Formatted Time': formatTimestamp()
-    }
-};
+                fields: {
+                    'Timestamp': new Date().toISOString()
+                }
+            };
 
             console.log('📋 Data to send:', recordData);
 
@@ -384,7 +379,7 @@
                 const result = await response.json();
                 console.log('✅ Airtable response:', result);
 
-                addLogEntry(`✅ Logged to Airtable: John Smith ${action}`, false);
+                addLogEntry(`✅ Logged to Airtable: ${action} at ${formatTimestamp()}`, false);
                 return true;
 
             } catch (error) {
