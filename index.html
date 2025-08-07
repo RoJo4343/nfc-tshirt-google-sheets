@@ -262,9 +262,7 @@
 
     <script>
         // Airtable Configuration - Replace with your actual values
-        const AIRTABLE_BASE_ID = 'appFN4SDNCvCCxlBW';
-const AIRTABLE_API_KEY = 'patUBNjZYtc6VscOz.5aeebc9c56334ce3610c937ab8857b89d79494b6198aaeb1dd8d961d7af08c45';
-const AIRTABLE_TABLE_NAME = 'Activity Log';
+        const WEBHOOK_URL = 'https://webhook.site/YOUR_ACTUAL_WEBHOOK_ID';
         
         // App state
         let isSignedIn = false;
@@ -338,59 +336,26 @@ const AIRTABLE_TABLE_NAME = 'Activity Log';
             }
         }
 
-        async function logToAirtable(action) {
-            console.log('📊 Logging to Airtable...');
-            console.log('🔗 Base ID configured:', AIRTABLE_BASE_ID !== 'YOUR_AIRTABLE_BASE_ID');
-            console.log('🔑 API Key configured:', AIRTABLE_API_KEY !== 'YOUR_AIRTABLE_API_KEY');
-            
-            if (AIRTABLE_BASE_ID === 'YOUR_AIRTABLE_BASE_ID' || AIRTABLE_API_KEY === 'YOUR_AIRTABLE_API_KEY') {
-                addLogEntry(`⚠️ Airtable not configured - Simulating: ${action} at ${formatTimestamp()}`, false);
-                return true;
-            }
-
-            const recordData = {
-                fields: {
-                    'Timestamp': new Date().toISOString()
-                }
-            };
-
-            console.log('📋 Data to send:', recordData);
-
-            try {
-                console.log('🚀 Sending to Airtable...');
-                
-                const response = await fetch(`https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${AIRTABLE_TABLE_NAME}`, {
-                    method: 'POST',
-                    headers: {
-                        'Authorization': `Bearer ${AIRTABLE_API_KEY}`,
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(recordData)
-                });
-
-                console.log('📥 Response status:', response.status);
-                console.log('📥 Response ok:', response.ok);
-
-                if (!response.ok) {
-                    const errorText = await response.text();
-                    throw new Error(`HTTP ${response.status}: ${errorText}`);
-                }
-
-                const result = await response.json();
-                console.log('✅ Airtable response:', result);
-
-                addLogEntry(`✅ Logged to Airtable: ${action} at ${formatTimestamp()}`, false);
-                return true;
-
-            } catch (error) {
-                console.error('❌ Airtable error:', error);
-                addLogEntry(`❌ Logging error: ${error.message}`, true);
-                
-                // Still return true for demo purposes
-                addLogEntry(`⚠️ Continuing in demo mode`, false);
-                return true;
-            }
-        }
+        async function logToWebhook(action) {
+    const data = {
+        timestamp: new Date().toISOString(),
+        action: action,
+        user: 'John Smith'
+    };
+    
+    try {
+        await fetch(WEBHOOK_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        });
+        addLogEntry(`✅ Logged: ${action}`, false);
+        return true;
+    } catch (error) {
+        addLogEntry(`❌ Error: ${error.message}`, true);
+        return false;
+    }
+}
 
         async function toggleSignIn() {
             console.log('🔥 Button clicked - toggleSignIn started');
@@ -415,7 +380,7 @@ const AIRTABLE_TABLE_NAME = 'Activity Log';
                 console.log('✅ Delay complete');
                 
                 console.log('🚀 About to call logToAirtable...');
-                const success = await logToAirtable(action);
+                const success = await logToWebhook(action);
                 console.log('📥 logToAirtable returned:', success);
                 
                 if (success) {
